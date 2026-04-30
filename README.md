@@ -1,1 +1,1 @@
-# gestionEstudiantesFastAPI
+# estudiantes-app
