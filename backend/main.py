@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
@@ -8,6 +9,13 @@ import auth
 import email_utils
 import secrets
 import datetime
+=======
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+from pydantic import BaseModel
+import models
+>>>>>>> recuperar-crud
 from database import engine, SessionLocal
 
 # Crear tablas en la base de datos
@@ -47,6 +55,7 @@ class StudentResponse(BaseModel):
     class Config:
         from_attributes = True
 
+<<<<<<< HEAD
 class UserCreate(BaseModel):
     email: EmailStr
 
@@ -132,6 +141,8 @@ def read_users_me(email: str = Depends(auth.verify_token), db: Session = Depends
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+=======
+>>>>>>> recuperar-crud
 
 # CRUD Estudiantes
 
