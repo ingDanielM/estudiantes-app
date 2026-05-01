@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>App Estudiantes</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>🎓 Gestión de Estudiantes</h1>
+    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+  </div>
+
+  <!-- Formulario -->
+  <form id="formEstudiante" class="form">
+    <input type="text" id="nombre" placeholder="Nombre" required>
+    <input type="text" id="curso" placeholder="Curso" required>
+    <button type="submit">Agregar</button>
+  </form>
+
+  <!-- Lista -->
+  <div id="lista" class="list"></div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
