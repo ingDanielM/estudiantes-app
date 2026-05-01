@@ -5,6 +5,9 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 import models
 import auth
+import email_utils
+import secrets
+import datetime
 from database import engine, SessionLocal
 
 # Crear tablas en la base de datos
@@ -59,21 +62,66 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+class OTPRequest(BaseModel):
+    email: EmailStr
 
-# Autenticación
+class OTPVerify(BaseModel):
+    email: EmailStr
+    otp_code: str
 
-@app.post("/auth/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    # NOTA: form_data.username se usará para el email por compatibilidad con OAuth2
-    user = db.query(models.User).filter(models.User.email == form_data.username).first()
-    
+
+# Autenticación OTP
+
+@app.post("/auth/request-otp")
+def request_otp(request: OTPRequest, db: Session = Depends(get_db)):
+    # 1. Buscar o crear el usuario
+    user = db.query(models.User).filter(models.User.email == request.email).first()
     if not user:
-        # Por ahora, creamos el usuario automáticamente si no existe (temporal para pruebas)
-        user = models.User(email=form_data.username)
+        user = models.User(email=request.email)
         db.add(user)
         db.commit()
         db.refresh(user)
+
+    # 2. Generar código OTP de 6 dígitos
+    otp_code = "".join([str(secrets.choice(range(10))) for _ in range(6)])
+    
+    # 3. Guardar en base de datos con expiración (10 minutos)
+    user.otp_code = otp_code
+    user.otp_created_at = datetime.datetime.utcnow()
+    db.commit()
+
+    # 4. Enviar correo
+    email_sent = email_utils.send_otp_email(to_email=user.email, otp_code=otp_code)
+    
+    if not email_sent:
+        raise HTTPException(status_code=500, detail="Error al enviar el correo. Verifica las credenciales SMTP.")
+
+    return {"message": "Código OTP enviado exitosamente al correo."}
+
+
+@app.post("/auth/verify-otp", response_model=Token)
+def verify_otp(data: OTPVerify, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == data.email).first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado.")
         
+    if not user.otp_code or user.otp_code != data.otp_code:
+        raise HTTPException(status_code=400, detail="Código OTP incorrecto.")
+        
+    # Verificar si el código ha expirado (10 minutos)
+    if not user.otp_created_at:
+        raise HTTPException(status_code=400, detail="El código OTP no es válido.")
+        
+    expiration_time = user.otp_created_at + datetime.timedelta(minutes=10)
+    if datetime.datetime.utcnow() > expiration_time:
+        raise HTTPException(status_code=400, detail="El código OTP ha expirado. Solicita uno nuevo.")
+
+    # El código es válido. Limpiar OTP y generar token JWT
+    user.otp_code = None
+    user.otp_created_at = None
+    db.commit()
+    
     access_token = auth.create_access_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
