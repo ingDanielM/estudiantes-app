@@ -1,4 +1,4 @@
-import jwt
+from jose import JWTError, jwt
 import datetime
 from fastapi import HTTPException, Security, Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -27,7 +27,5 @@ def verify_token(token: str = Depends(oauth2_scheme)):
         if email is None:
             raise HTTPException(status_code=401, detail="Could not validate credentials")
         return email
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Could not validate credentials")
+    except JWTError:
+      raise HTTPException(status_code=401, detail="Could not validate credentials")
