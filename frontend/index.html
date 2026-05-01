@@ -2,25 +2,34 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Estudiantes</title>
+  <title>CRUD Estudiantes</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>CRUD Estudiantes</h2>
+<h1>Gestión de Estudiantes</h1>
+
 
 <button onclick="logout()">Cerrar sesión</button>
 
-<br><br>
+<hr>
 
+<!--  Formulario -->
+<h2>Agregar estudiante</h2>
 <form id="formEstudiante">
   <input type="text" id="nombre" placeholder="Nombre" required>
   <input type="text" id="curso" placeholder="Curso" required>
   <button type="submit">Guardar</button>
 </form>
 
-<h3>Lista de estudiantes</h3>
+<hr>
+
+
+<h2>Lista de estudiantes</h2>
 <ul id="lista"></ul>
 
-<script src="app.js"></script>
+<!-- JS -->
+<script src="script.js"></script>
+
 </body>
 </html>
