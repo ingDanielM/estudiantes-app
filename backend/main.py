@@ -134,17 +134,29 @@ def read_users_me(email: str = Depends(auth.verify_token), db: Session = Depends
 
 
 # CRUD Estudiantes
+# Para este CRUD se necesita verificar el token JWT en cada endpoint.
 
 # GET - Obtener todos los estudiantes
 @app.get("/students", response_model=list[StudentResponse])
-def get_students(db: Session = Depends(get_db)):
+def get_students(db: Session = Depends(get_db), email: str = Depends(auth.verify_token)):
+    if not email:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     students = db.query(models.Student).all()
     return students
 
 
 # POST - Crear estudiante
 @app.post("/students", response_model=StudentResponse)
-def create_student(student: StudentCreate, db: Session = Depends(get_db)):
+def create_student(student: StudentCreate, db: Session = Depends(get_db), email: str = Depends(auth.verify_token)):
+    if not email:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    if student.age < 0:
+        raise HTTPException(status_code=400, detail="La edad debe ser un número positivo.")
+    
+    if student.grade < 0.0 or student.grade > 5.0:
+        raise HTTPException(status_code=400, detail="La calificación debe estar entre 0.0 y 5.0.")
+
     new_student = models.Student(
         name=student.name,
         age=student.age,
@@ -158,7 +170,10 @@ def create_student(student: StudentCreate, db: Session = Depends(get_db)):
 
 # PUT - Actualizar estudiante
 @app.put("/students/{student_id}", response_model=StudentResponse)
-def update_student(student_id: int, student: StudentCreate, db: Session = Depends(get_db)):
+def update_student(student_id: int, student: StudentCreate, db: Session = Depends(get_db), email: str = Depends(auth.verify_token)):
+    if not email:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
     db_student = db.query(models.Student).filter(models.Student.id == student_id).first()
 
     if not db_student:
@@ -175,7 +190,10 @@ def update_student(student_id: int, student: StudentCreate, db: Session = Depend
 
 # DELETE - Eliminar estudiante
 @app.delete("/students/{student_id}")
-def delete_student(student_id: int, db: Session = Depends(get_db)):
+def delete_student(student_id: int, db: Session = Depends(get_db), email: str = Depends(auth.verify_token)):
+    if not email:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
     db_student = db.query(models.Student).filter(models.Student.id == student_id).first()
 
     if not db_student:
