@@ -2,25 +2,32 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Estudiantes</title>
+  <title>App Estudiantes</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>CRUD Estudiantes</h2>
+<div class="container">
 
-<button onclick="logout()">Cerrar sesión</button>
+  <!-- Header -->
+  <div class="header">
+    <h1>🎓 Gestión de Estudiantes</h1>
+    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+  </div>
 
-<br><br>
+  <!-- Formulario -->
+  <form id="formEstudiante" class="form">
+    <input type="text" id="nombre" placeholder="Nombre" required>
+    <input type="text" id="curso" placeholder="Curso" required>
+    <button type="submit">Agregar</button>
+  </form>
 
-<form id="formEstudiante">
-  <input type="text" id="nombre" placeholder="Nombre" required>
-  <input type="text" id="curso" placeholder="Curso" required>
-  <button type="submit">Guardar</button>
-</form>
+  <!-- Lista -->
+  <div id="lista" class="list"></div>
 
-<h3>Lista de estudiantes</h3>
-<ul id="lista"></ul>
+</div>
 
-<script src="app.js"></script>
+<script src="script.js"></script>
+
 </body>
 </html>

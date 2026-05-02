@@ -1,0 +1,133 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Fondo */
+body {
+  background: #0f172a;
+  color: #1e293b;
+}
+
+/* Layout */
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.header h1 {
+  color: #0f172a;
+}
+
+/* Botón logout */
+.logout-btn {
+  background: #ef4444;
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+}
+
+/* Form */
+.form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.form input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  outline: none;
+}
+
+.form input:focus {
+  border-color: #3b82f6;
+}
+
+/* Botón guardar */
+.form button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.form button:hover {
+  background: #2563eb;
+}
+
+/* Lista */
+.list {
+  margin-top: 10px;
+}
+
+/* Item */
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: 0.2s;
+}
+
+.item:hover {
+  transform: scale(1.01);
+  background: #e2e8f0;
+}
+
+/* Acciones */
+.actions button {
+  margin-left: 5px;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Botones acciones */
+.edit {
+  background: #f59e0b;
+  color: white;
+}
+
+.delete {
+  background: #ef4444;
+  color: white;
+}
+
+.edit:hover {
+  background: #d97706;
+}
+
+.delete:hover {
+  background: #dc2626;
+}
