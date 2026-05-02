@@ -151,6 +151,12 @@ def create_student(student: StudentCreate, db: Session = Depends(get_db), email:
     if not email:
         raise HTTPException(status_code=401, detail="Unauthorized")
     
+    if student.age < 0:
+        raise HTTPException(status_code=400, detail="La edad debe ser un número positivo.")
+    
+    if student.grade < 0.0 or student.grade > 5.0:
+        raise HTTPException(status_code=400, detail="La calificación debe estar entre 0.0 y 5.0.")
+
     new_student = models.Student(
         name=student.name,
         age=student.age,
