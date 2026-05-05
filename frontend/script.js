@@ -1,21 +1,21 @@
-const API_URL = "http://localhost:3000";
+const API_URL = "";
 
-//  Verificar token
+// Verificar token
 const token = localStorage.getItem("token");
 
 if (!token) {
-  window.location.href = "login.html";
+  window.location.href = "/static/login.html";
 }
 
 
 function logout() {
   localStorage.removeItem("token");
-  window.location.href = "login.html";
+  window.location.href = "/static/login.html";
 }
 
-//  Cargar estudiantes
+// Cargar estudiantes
 async function cargarEstudiantes() {
-  const res = await fetch(`${API_URL}/estudiantes`, {
+  const res = await fetch(`${API_URL}/students`, {
     headers: {
       "Authorization": `Bearer ${token}`
     }
@@ -31,10 +31,10 @@ async function cargarEstudiantes() {
     div.classList.add("item");
 
     div.innerHTML = `
-      <span>${est.nombre} - ${est.curso}</span>
+      <span>${est.name} - Edad: ${est.age} - Nota: ${est.grade}</span>
       <div class="actions">
-        <button class="edit" onclick="editarEstudiante('${est.id}', '${est.nombre}', '${est.curso}')">Editar</button>
-        <button class="delete" onclick="eliminarEstudiante('${est.id}')">Eliminar</button>
+        <button class="edit" onclick="editarEstudiante(${est.id}, '${est.name}', ${est.age}, ${est.grade})">Editar</button>
+        <button class="delete" onclick="eliminarEstudiante(${est.id})">Eliminar</button>
       </div>
     `;
 
@@ -42,40 +42,42 @@ async function cargarEstudiantes() {
   });
 }
 
-//  Crear estudiante
+// Crear estudiante
 document.getElementById("formEstudiante").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const nombre = document.getElementById("nombre").value;
-  const curso = document.getElementById("curso").value;
+  const name = document.getElementById("nombre").value;
+  const age = parseInt(document.getElementById("edad").value);
+  const grade = parseFloat(document.getElementById("nota").value);
 
-  await fetch(`${API_URL}/estudiantes`, {
+  await fetch(`${API_URL}/students`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`
     },
-    body: JSON.stringify({ nombre, curso })
+    body: JSON.stringify({ name, age, grade })
   });
 
   document.getElementById("formEstudiante").reset();
   cargarEstudiantes();
 });
 
-//  Editar estudiante
-async function editarEstudiante(id, nombreActual, cursoActual) {
-  const nuevoNombre = prompt("Nuevo nombre:", nombreActual);
-  const nuevoCurso = prompt("Nuevo curso:", cursoActual);
+// Editar estudiante
+async function editarEstudiante(id, nameActual, ageActual, gradeActual) {
+  const nuevoName = prompt("Nuevo nombre:", nameActual);
+  const nuevaAge = parseInt(prompt("Nueva edad:", ageActual));
+  const nuevaGrade = parseFloat(prompt("Nueva nota (0.0 - 5.0):", gradeActual));
 
-  if (!nuevoNombre || !nuevoCurso) return;
+  if (!nuevoName) return;
 
-  await fetch(`${API_URL}/estudiantes/${id}`, {
+  await fetch(`${API_URL}/students/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`
     },
-    body: JSON.stringify({ nombre: nuevoNombre, curso: nuevoCurso })
+    body: JSON.stringify({ name: nuevoName, age: nuevaAge, grade: nuevaGrade })
   });
 
   cargarEstudiantes();
@@ -86,7 +88,7 @@ async function eliminarEstudiante(id) {
   const confirmar = confirm("¿Eliminar este estudiante?");
   if (!confirmar) return;
 
-  await fetch(`${API_URL}/estudiantes/${id}`, {
+  await fetch(`${API_URL}/students/${id}`, {
     method: "DELETE",
     headers: {
       "Authorization": `Bearer ${token}`
