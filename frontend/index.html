@@ -1,33 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>App Estudiantes</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <title>Estudiantes</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <div class="container">
-
-  <!-- Header -->
-  <div class="header">
     <h1>🎓 Gestión de Estudiantes</h1>
-    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
-  </div>
 
-  <!-- Formulario -->
-  <form id="formEstudiante" class="form">
-    <input type="text" id="nombre" placeholder="Nombre" required>
-    <input type="text" id="curso" placeholder="Curso" required>
-    <button type="submit">Agregar</button>
-  </form>
+    <div class="card">
+        <h2>Agregar</h2>
+        <input type="text" id="name" placeholder="Nombre">
+        <input type="number" id="age" placeholder="Edad">
+        <input type="number" step="0.1" id="grade" placeholder="Nota">
+        <button onclick="agregar()">Agregar</button>
+    </div>
 
-  <!-- Lista -->
-  <div id="lista" class="list"></div>
+    <div class="card">
+        <h2>Lista</h2>
+        <ul id="lista"></ul>
+    </div>
 
+    <button onclick="logout()" class="logout">Cerrar sesión</button>
 </div>
 
-<script src="script.js"></script>
+<div id="toast"></div>
 
+<script src="script.js"></script>
 </body>
 </html>

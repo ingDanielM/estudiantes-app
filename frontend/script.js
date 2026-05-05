@@ -1,102 +1,146 @@
-const API_URL = "";
-
-// Verificar token
+const API = "http://localhost:8000/students";
 const token = localStorage.getItem("token");
 
+// protección
 if (!token) {
-  window.location.href = "/static/login.html";
+    window.location.href = "login.html";
 }
 
+function headers() {
+    return {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+    };
+}
 
+function toast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.style.opacity = 1;
+    setTimeout(() => t.style.opacity = 0, 2000);
+}
+
+// cargar
+async function cargar() {
+    const res = await fetch(API, { headers: headers() });
+
+    if (!res.ok) {
+        toast("Error al cargar datos, " + res.status + " " + res.detail);
+        return;
+    }
+
+    const data = await res.json();
+
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
+
+    data.forEach(e => {
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            ${e.name} | ${e.age} años | Nota: ${e.grade}
+            <div>
+                <button onclick="editar(${e.id})">✏️</button>
+                <button onclick="eliminar(${e.id})">🗑️</button>
+            </div>
+        `;
+
+        lista.appendChild(li);
+    });
+}
+
+// agregar
+async function agregar() {
+    const name = document.getElementById("name").value;
+    const age = parseInt(document.getElementById("age").value);
+    const grade = parseFloat(document.getElementById("grade").value);
+
+    if (!name || isNaN(age) || isNaN(grade)) {
+        toast("Todos los campos son obligatorios y deben ser válidos");
+        return;
+    }
+
+    if (age < 0 || age > 120) {
+        toast("Edad no válida");
+        return;
+    }
+
+    if (grade < 0 || grade > 5) {
+        toast("La nota debe estar entre 0 y 5");
+        return;
+    }
+
+    const res = await fetch(API, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ name, age, grade })
+    });
+
+    if (!res.ok) {
+        toast("Error al agregar estudiante, " + res.status + " " + res.detail);
+        return;
+    }
+
+    toast("Agregado");
+    cargar();
+}
+
+// eliminar
+async function eliminar(id) {
+    const res = await fetch(`${API}/${id}`, {
+        method: "DELETE",
+        headers: headers()
+    });
+
+    if (!res.ok) {
+        toast("Error al eliminar estudiante, " + res.status + " " + res.detail);
+        return;
+    }
+
+    toast("Eliminado");
+    cargar();
+}
+
+// editar
+async function editar(id) {
+    const name = prompt("Nombre:");
+    const age = parseInt(prompt("Edad:"));
+    const grade = parseFloat(prompt("Nota:"));
+
+    if (!name || isNaN(age) || isNaN(grade)) {
+        toast("Todos los campos son obligatorios y deben ser válidos");
+        return;
+    }
+
+    if (age < 0 || age > 120) {
+        toast("Edad no válida");
+        return;
+    }
+    
+    if (grade < 0 || grade > 5) {
+        toast("La nota debe estar entre 0 y 5");
+        return;
+    }
+
+    const res = await fetch(`${API}/${id}`, {
+        method: "PUT",
+        headers: headers(),
+        body: JSON.stringify({ name, age, grade })
+    });
+
+    if (!res.ok) {
+        toast("Error al actualizar estudiante, " + res.status + " " + res.detail);
+        return;
+    }
+
+    toast("Actualizado");
+    cargar();
+}
+
+// logout
 function logout() {
-  localStorage.removeItem("token");
-  window.location.href = "/static/login.html";
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
 }
 
-// Cargar estudiantes
-async function cargarEstudiantes() {
-  const res = await fetch(`${API_URL}/students`, {
-    headers: {
-      "Authorization": `Bearer ${token}`
-    }
-  });
-
-  const data = await res.json();
-
-  const lista = document.getElementById("lista");
-  lista.innerHTML = "";
-
-  data.forEach(est => {
-    const div = document.createElement("div");
-    div.classList.add("item");
-
-    div.innerHTML = `
-      <span>${est.name} - Edad: ${est.age} - Nota: ${est.grade}</span>
-      <div class="actions">
-        <button class="edit" onclick="editarEstudiante(${est.id}, '${est.name}', ${est.age}, ${est.grade})">Editar</button>
-        <button class="delete" onclick="eliminarEstudiante(${est.id})">Eliminar</button>
-      </div>
-    `;
-
-    lista.appendChild(div);
-  });
-}
-
-// Crear estudiante
-document.getElementById("formEstudiante").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const name = document.getElementById("nombre").value;
-  const age = parseInt(document.getElementById("edad").value);
-  const grade = parseFloat(document.getElementById("nota").value);
-
-  await fetch(`${API_URL}/students`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    },
-    body: JSON.stringify({ name, age, grade })
-  });
-
-  document.getElementById("formEstudiante").reset();
-  cargarEstudiantes();
-});
-
-// Editar estudiante
-async function editarEstudiante(id, nameActual, ageActual, gradeActual) {
-  const nuevoName = prompt("Nuevo nombre:", nameActual);
-  const nuevaAge = parseInt(prompt("Nueva edad:", ageActual));
-  const nuevaGrade = parseFloat(prompt("Nueva nota (0.0 - 5.0):", gradeActual));
-
-  if (!nuevoName) return;
-
-  await fetch(`${API_URL}/students/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    },
-    body: JSON.stringify({ name: nuevoName, age: nuevaAge, grade: nuevaGrade })
-  });
-
-  cargarEstudiantes();
-}
-
-// Eliminar estudiante
-async function eliminarEstudiante(id) {
-  const confirmar = confirm("¿Eliminar este estudiante?");
-  if (!confirmar) return;
-
-  await fetch(`${API_URL}/students/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${token}`
-    }
-  });
-
-  cargarEstudiantes();
-}
-
-// Inicial
-cargarEstudiantes();
+cargar();
