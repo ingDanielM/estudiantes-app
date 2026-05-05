@@ -15,7 +15,11 @@ document.getElementById("otpForm").addEventListener("submit", async (e) => {
   });
 
   const data = await res.json();
-  alert(data.message || "OTP enviado");
+  if (!res.ok) {
+    alert("Error al enviar OTP: " + (data.detail || "Error desconocido"));
+  } else {
+    alert(data.message || "OTP enviado al correo exitosamente.");
+  }
 });
 
 // Verificar OTP
@@ -35,11 +39,11 @@ document.getElementById("verifyForm").addEventListener("submit", async (e) => {
 
   const data = await res.json();
 
-  if (data.access_token) {
+  if (res.ok && data.access_token) {
     localStorage.setItem("token", data.access_token);
     alert("Login exitoso 🔥");
     window.location.href = "/static/index.html";
   } else {
-    alert("OTP incorrecto ❌");
+    alert("Error al verificar OTP: " + (data.detail || "Código incorrecto"));
   }
 });
