@@ -1,4 +1,4 @@
-const API = "http://localhost:8000/students";
+const API_URL = "/students";
 const token = localStorage.getItem("token");
 
 // protección
@@ -22,7 +22,7 @@ function toast(msg) {
 
 // cargar
 async function cargar() {
-    const res = await fetch(API, { headers: headers() });
+    const res = await fetch(API_URL, { headers: headers() });
 
     if (!res.ok) {
         toast("Error al cargar datos, " + res.status + " " + res.detail);
@@ -70,7 +70,7 @@ async function agregar() {
         return;
     }
 
-    const res = await fetch(API, {
+    const res = await fetch(API_URL, {
         method: "POST",
         headers: headers(),
         body: JSON.stringify({ name, age, grade })
@@ -87,7 +87,7 @@ async function agregar() {
 
 // eliminar
 async function eliminar(id) {
-    const res = await fetch(`${API}/${id}`, {
+    const res = await fetch(`${API_URL}/${id}`, {
         method: "DELETE",
         headers: headers()
     });
@@ -122,7 +122,7 @@ async function editar(id) {
         return;
     }
 
-    const res = await fetch(`${API}/${id}`, {
+    const res = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
         headers: headers(),
         body: JSON.stringify({ name, age, grade })
