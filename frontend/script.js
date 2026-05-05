@@ -1,19 +1,19 @@
-const API_URL = "http://localhost:3000";
+const API_URL = "";
 
-//  Verificar token
+// Verificar token
 const token = localStorage.getItem("token");
 
 if (!token) {
-  window.location.href = "login.html";
+  window.location.href = "/static/login.html";
 }
 
 
 function logout() {
   localStorage.removeItem("token");
-  window.location.href = "login.html";
+  window.location.href = "/static/login.html";
 }
 
-//  Cargar estudiantes
+// Cargar estudiantes
 async function cargarEstudiantes() {
   const res = await fetch(`${API_URL}/students`, {
     headers: {
@@ -33,8 +33,8 @@ async function cargarEstudiantes() {
     div.innerHTML = `
       <span>${est.name} - Edad: ${est.age} - Nota: ${est.grade}</span>
       <div class="actions">
-        <button class="edit" onclick="editarEstudiante('${est.id}', '${est.name}', ${est.age}, ${est.grade})">Editar</button>
-        <button class="delete" onclick="eliminarEstudiante('${est.id}')">Eliminar</button>
+        <button class="edit" onclick="editarEstudiante(${est.id}, '${est.name}', ${est.age}, ${est.grade})">Editar</button>
+        <button class="delete" onclick="eliminarEstudiante(${est.id})">Eliminar</button>
       </div>
     `;
 
@@ -42,13 +42,13 @@ async function cargarEstudiantes() {
   });
 }
 
-//  Crear estudiante
+// Crear estudiante
 document.getElementById("formEstudiante").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const nombre = document.getElementById("nombre").value;
-  const edad = document.getElementById("edad").value;
-  const calificacion = document.getElementById("calificacion").value;
+  const name = document.getElementById("nombre").value;
+  const age = parseInt(document.getElementById("edad").value);
+  const grade = parseFloat(document.getElementById("nota").value);
 
   await fetch(`${API_URL}/students`, {
     method: "POST",
@@ -56,20 +56,20 @@ document.getElementById("formEstudiante").addEventListener("submit", async (e) =
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`
     },
-    body: JSON.stringify({ name: nombre, age: parseInt(edad), grade: parseFloat(calificacion) })
+    body: JSON.stringify({ name, age, grade })
   });
 
   document.getElementById("formEstudiante").reset();
   cargarEstudiantes();
 });
 
-//  Editar estudiante
-async function editarEstudiante(id, nombreActual, edadActual, califActual) {
-  const nuevoNombre = prompt("Nuevo nombre:", nombreActual);
-  const nuevaEdad = prompt("Nueva edad:", edadActual);
-  const nuevaCalificacion = prompt("Nueva calificación (0-5):", califActual);
+// Editar estudiante
+async function editarEstudiante(id, nameActual, ageActual, gradeActual) {
+  const nuevoName = prompt("Nuevo nombre:", nameActual);
+  const nuevaAge = parseInt(prompt("Nueva edad:", ageActual));
+  const nuevaGrade = parseFloat(prompt("Nueva nota (0.0 - 5.0):", gradeActual));
 
-  if (!nuevoNombre || !nuevaEdad || !nuevaCalificacion) return;
+  if (!nuevoName) return;
 
   await fetch(`${API_URL}/students/${id}`, {
     method: "PUT",
@@ -77,7 +77,7 @@ async function editarEstudiante(id, nombreActual, edadActual, califActual) {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`
     },
-    body: JSON.stringify({ name: nuevoNombre, age: parseInt(nuevaEdad), grade: parseFloat(nuevaCalificacion) })
+    body: JSON.stringify({ name: nuevoName, age: nuevaAge, grade: nuevaGrade })
   });
 
   cargarEstudiantes();
