@@ -25,6 +25,7 @@ venv/
 .venv/
 env/
 .env
+backend/.env
 
 # Base de datos SQLite
 *.db

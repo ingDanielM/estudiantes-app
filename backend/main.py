@@ -6,12 +6,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
-import models
-import auth
-import email_utils
+from . import models
+from . import auth
+from . import email_utils
 import secrets
 import datetime
-from database import engine, SessionLocal
+from .database import engine, SessionLocal
 
 # Crear tablas en la base de datos
 models.Base.metadata.create_all(bind=engine)
@@ -146,13 +146,17 @@ def read_users_me(email: str = Depends(auth.verify_token), db: Session = Depends
 
 
 # CRUD Estudiantes
-# Para este CRUD se necesita verificar el token JWT en cada endpoint.
+# Todos los endpoints requieren verificación JWT. La única excepción es /static/login.html
+
+urls_sin_autenticacion = ["/static/login.html"]
 
 # GET - Obtener todos los estudiantes
 @app.get("/students", response_model=list[StudentResponse])
 def get_students(db: Session = Depends(get_db), email: str = Depends(auth.verify_token)):
-    if not email:
+    request_path = app.url_path_for("get_students")
+    if request_path not in urls_sin_autenticacion and not email:
         raise HTTPException(status_code=401, detail="Unauthorized")
+    
     students = db.query(models.Student).all()
     return students
 
@@ -160,7 +164,8 @@ def get_students(db: Session = Depends(get_db), email: str = Depends(auth.verify
 # POST - Crear estudiante
 @app.post("/students", response_model=StudentResponse)
 def create_student(student: StudentCreate, db: Session = Depends(get_db), email: str = Depends(auth.verify_token)):
-    if not email:
+    request_path = app.url_path_for("get_students")
+    if request_path not in urls_sin_autenticacion and not email:
         raise HTTPException(status_code=401, detail="Unauthorized")
     
     if student.age < 0:
@@ -183,7 +188,8 @@ def create_student(student: StudentCreate, db: Session = Depends(get_db), email:
 # PUT - Actualizar estudiante
 @app.put("/students/{student_id}", response_model=StudentResponse)
 def update_student(student_id: int, student: StudentCreate, db: Session = Depends(get_db), email: str = Depends(auth.verify_token)):
-    if not email:
+    request_path = app.url_path_for("get_students")
+    if request_path not in urls_sin_autenticacion and not email:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     db_student = db.query(models.Student).filter(models.Student.id == student_id).first()
@@ -203,7 +209,8 @@ def update_student(student_id: int, student: StudentCreate, db: Session = Depend
 # DELETE - Eliminar estudiante
 @app.delete("/students/{student_id}")
 def delete_student(student_id: int, db: Session = Depends(get_db), email: str = Depends(auth.verify_token)):
-    if not email:
+    request_path = app.url_path_for("get_students")
+    if request_path not in urls_sin_autenticacion and not email:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     db_student = db.query(models.Student).filter(models.Student.id == student_id).first()
